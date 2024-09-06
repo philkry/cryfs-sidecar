@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     libboost-program-options-dev \
     libboost-thread-dev \
     python3-pip \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Conan
