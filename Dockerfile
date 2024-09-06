@@ -1,18 +1,20 @@
-# Use a small base image
-FROM alpine:3.18 as builder
+# Use Debian slim as base image
+FROM debian:bullseye-slim as builder
 
 # Install build dependencies
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     cmake \
     make \
     g++ \
     git \
-    curl \
-    fuse-dev \
-    openssl-dev \
-    boost-dev \
-    python3 \
-    py3-pip
+    libfuse-dev \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libboost-filesystem-dev \
+    libboost-program-options-dev \
+    libboost-thread-dev \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Conan
 RUN pip3 install conan==1.60.1
@@ -29,15 +31,15 @@ RUN git clone https://github.com/cryfs/cryfs.git /cryfs && \
     make install
 
 # Create final minimal image
-FROM alpine:3.18
+FROM debian:bullseye-slim
 
 # Install runtime dependencies
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     fuse \
-    libstdc++ \
-    boost-program_options \
-    boost-filesystem \
-    boost-system
+    libboost-filesystem1.74.0 \
+    libboost-program-options1.74.0 \
+    libboost-thread1.74.0 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy cryfs from builder
 COPY --from=builder /usr/local/bin/cryfs /usr/local/bin/cryfs
