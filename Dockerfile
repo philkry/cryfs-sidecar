@@ -11,7 +11,11 @@ RUN apk add --no-cache \
     fuse-dev \
     openssl-dev \
     boost-dev \
-    python3
+    python3 \
+    py3-pip
+
+# Install Conan
+RUN pip3 install conan==1.60.1
 
 # Clone and build cryfs
 RUN git clone https://github.com/cryfs/cryfs.git /cryfs && \
@@ -19,6 +23,7 @@ RUN git clone https://github.com/cryfs/cryfs.git /cryfs && \
     git checkout $(git describe --tags --abbrev=0) && \
     mkdir build && \
     cd build && \
+    conan install .. --build=missing && \
     cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=off && \
     make -j$(nproc) && \
     make install
